@@ -160,6 +160,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="My Transactions" id="bSA-z3-xw3"/>
                     <connections>
+                        <outlet property="searchBar4" destination="PIn-jF-P2h" id="pef-Ud-F8t"/>
                         <outlet property="tableView3" destination="HgK-2J-6fb" id="EoM-2m-odV"/>
                     </connections>
                 </viewController>

@@ -8,7 +8,23 @@
 
 import UIKit
 
-class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource{
+class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UISearchResultsUpdating{
+    
+    var searchItem:UISearchController!
+    
+    var filterData = [String]()
+    
+    @IBOutlet weak var searchBar4: UISearchBar!
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        
+        let predicate = NSPredicate(format: "self contains[c]%@", searchController.searchBar.text!)
+        
+        filterData = (names as NSArray).filtered(using: predicate) as! [String]
+        tableView3.reloadData()
+    
+    }
+    
     
     var names = ["Ref-11500043123","Ref-11580280201","Ref-11580280201","Mohammad","Mohammad","Mohammad"]
     var dates = ["19-02-2020","20-02-2020","21-02-2020","22-02-2020","23-02-2020","24-02-2020"]
@@ -20,7 +36,16 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     let cellSpace:CGFloat = 7
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return names.count
+        if searching{
+        
+        return filterData.count
+        }
+        else{
+            
+            
+           return names.count
+            
+        }
     }
     
     
@@ -73,6 +98,15 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 
         navigationController?.navigationBar.backgroundColor = .green
         
+        
+        if searching{
+            
+            cell.nameAndID.text = filterData[indexPath.row]
+            
+        }
+        
+        
+        
         return cell
     }
     
@@ -98,7 +132,15 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     @IBOutlet weak var tableView3: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        searchItem = UISearchController(searchResultsController: nil)
+        searchItem.searchResultsUpdater = self
         
+//        tableView3.tableHeaderView = searchItem.searchBar
+        
+        searchBar4.delegate = self
+        
+        searchItem.searchBar.scopeButtonTitles = names
+//        searchItem.searchBar.showsScopeBar = true
         
         let myviewv = UINib(nibName: "Custom2TableViewCell", bundle: nil)
         tableView3.register(myviewv, forCellReuseIdentifier: "567")
@@ -112,4 +154,20 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
 
 
 }
+var searching = false
 
+extension ViewController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filterData = names.filter({$0.lowercased().prefix(searchText.count) == searchText.lowercased()})
+        searching = true
+        tableView3.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searching = true
+        searchBar.text = ""
+        tableView3.reloadData()
+    }
+    
+}

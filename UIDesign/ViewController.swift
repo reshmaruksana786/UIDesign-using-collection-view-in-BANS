@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UISearchResultsUpdating{
+class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UISearchControllerDelegate{
     
     var searchItem:UISearchController!
     
@@ -16,14 +16,19 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     
     @IBOutlet weak var searchBar4: UISearchBar!
     
-    func updateSearchResults(for searchController: UISearchController) {
-        
-        let predicate = NSPredicate(format: "self contains[c]%@", searchController.searchBar.text!)
-        
-        filterData = (names as NSArray).filtered(using: predicate) as! [String]
-        tableView3.reloadData()
-    
-    }
+//    func updateSearchResults(for searchController: UISearchController) {
+//
+//        if (searchBar4.text == ""){
+//
+//            tableView3.reloadData()
+//        }
+//
+//        let predicate = NSPredicate(format: "self contains[c]%@", searchController.searchBar.text!)
+//
+//        filterData = (names as NSArray).filtered(using: predicate) as! [String]
+//        tableView3.reloadData()
+//
+//    }
     
     
     var names = ["Ref-11500043123","Ref-11580280201","Ref-11580280201","Mohammad","Mohammad","Mohammad"]
@@ -39,13 +44,14 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         if searching{
         
         return filterData.count
-        }
-        else{
             
+        }
+        
+        else {
             
            return names.count
-            
         }
+        
     }
     
     
@@ -78,7 +84,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         let cell = tableView.dequeueReusableCell(withIdentifier: "567", for: indexPath) as! Custom2TableViewCell
         
 
-        cell.nameAndID!.text = names[indexPath.section]
+//        cell.nameAndID!.text = names[indexPath.section]
 
         
         cell.layer.borderWidth = 1
@@ -87,7 +93,7 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         cell.layer.borderColor = borderColor.cgColor
         
         cell.backgroundColor = .lightText
-
+        print(DataManage.shared.names)
         cell.layer.cornerRadius = 20
         cell.clipsToBounds  = true
         cell.date?.text = dates[indexPath.section]
@@ -99,14 +105,19 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         navigationController?.navigationBar.backgroundColor = .green
         
         
-        if searching{
-            
-            cell.nameAndID.text = filterData[indexPath.row]
-            
+        if searching == true{
+
+            cell.nameAndID.text = filterData[indexPath.section]
+
+            return cell
+        }
+        else if searching == false{
+
+             cell.nameAndID.text = names[indexPath.section]
+            return cell
         }
         
-        
-        
+       
         return cell
     }
     
@@ -133,13 +144,14 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
     override func viewDidLoad() {
         super.viewDidLoad()
         searchItem = UISearchController(searchResultsController: nil)
-        searchItem.searchResultsUpdater = self
+        searchBar4.delegate = self
+//        searchItem.searchResultsUpdater = self
         
 //        tableView3.tableHeaderView = searchItem.searchBar
         
-        searchBar4.delegate = self
         
-        searchItem.searchBar.scopeButtonTitles = names
+        
+//        searchItem.searchBar.scopeButtonTitles = names
 //        searchItem.searchBar.showsScopeBar = true
         
         let myviewv = UINib(nibName: "Custom2TableViewCell", bundle: nil)
@@ -149,25 +161,89 @@ class ViewController: UIViewController,UITableViewDelegate,UITableViewDataSource
         tableView3.dataSource = self
         
         
+        append()
+        
         // Do any additional setup after loading the view.
     }
-
+    
+    func append(){
+        
+        
+        
+         DataManage.shared.names = [String]()
+         DataManage.shared.dates = [String]()
+         DataManage.shared.receivers = [String]()
+         DataManage.shared.amount = [String]()
+         DataManage.shared.transactionTypes = [String]()
+         DataManage.shared.outputs = [String]()
+        
+        
+        
+        for t in names{
+            
+            DataManage.shared.names.append(t)
+        }
+        for t in dates{
+            
+            DataManage.shared.dates.append(t)
+        }
+        for t in receivers{
+            
+            DataManage.shared.receivers.append(t)
+        }
+        for t in amount{
+            
+            DataManage.shared.amount.append(t)
+        }
+        for t in transactionTypes{
+            
+            DataManage.shared.transactionTypes.append(t)
+            
+            if(t == "wallet"){
+                
+                DataManage.shared.wallet.append(t)
+            }
+            if(t == "card"){
+                
+                DataManage.shared.card.append(t)
+            }
+            if(t == "Referal"){
+                
+                DataManage.shared.referal.append(t)
+            }
+            if(t == "coupon"){
+                
+                DataManage.shared.coupon.append(t)
+            }
+            
+        }
+        for t in outputs{
+            
+            DataManage.shared.outputs.append(t)
+        }
+        
+        
+        
+    }
 
 }
 var searching = false
 
-extension ViewController: UISearchBarDelegate {
+extension ViewController: UISearchBarDelegate
+{
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filterData = names.filter({$0.lowercased().prefix(searchText.count) == searchText.lowercased()})
         searching = true
+        filterData = names.filter({$0.lowercased().prefix(searchText.count) == searchText.lowercased()})
         tableView3.reloadData()
     }
     
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searching = true
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
+    {
+        searching = false
         searchBar.text = ""
         tableView3.reloadData()
     }
+    
     
 }

@@ -8,9 +8,19 @@
 
 import UIKit
 
-class SecondViewController: UIViewController,UITableViewDelegate,UITableViewDataSource {
-
+class SecondViewController: UIViewController,UITableViewDelegate,UITableViewDataSource,UISearchControllerDelegate {
+    
+    var searchItem:UISearchController!
+    
+    var filterData = [String]()
+    
     @IBOutlet weak var tableView3: UITableView!
+    
+    
+    @IBAction func dismiss(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
+    
     
     var names = ["Ref-11580280201","Ref-11050004323","Ref-11580280201","Ref-11580280201","Ref-11580280201","Ref-11580280201"]
        var dates = ["2020-02-05","2020-02-05","2020-02-05","2020-02-05","2020-02-05","2020-02-05"]
@@ -18,11 +28,23 @@ class SecondViewController: UIViewController,UITableViewDelegate,UITableViewData
        var amount = ["4500.00 INR","6000.00 INR","6000.00 INR ","6000.00 INR","",""]
        var transactionTypes = ["wallet","Coupon","Card","Wallet","6000.00 INR","6000.00 INR"]
        var outputs = ["Credited","Success","Debited","Debited","Coupon","Coupon"]
-        
+  
+    
+    
+    
+    
+    
     var cellSpace:CGFloat = 7
     
         func numberOfSections(in tableView: UITableView) -> Int {
-            return names.count
+                
+                if searching
+                {
+                    return filterData.count
+                }else{
+                    return names.count
+                    }
+                  
         }
         
         
@@ -31,7 +53,8 @@ class SecondViewController: UIViewController,UITableViewDelegate,UITableViewData
         }
         
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return 1
+        return 1
+             
         }
         func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
              let tableViewWidth = tableView.bounds
@@ -67,17 +90,21 @@ class SecondViewController: UIViewController,UITableViewDelegate,UITableViewData
             cell.amount?.text = amount[indexPath.section]
             cell.transactionType?.text = transactionTypes[indexPath.section]
             cell.output?.text = outputs[indexPath.section]
+            if searching == true{
 
+                       cell.nameAndID.text = filterData[indexPath.section]
+
+                       return cell
+                   }
+                   else if searching == false{
+
+                        cell.nameAndID.text = names[indexPath.section]
+                       return cell
+                   }
             return cell
         }
      
     
-    @IBAction func dismiss(_ sender: Any) {
-        
-        
-        dismiss(animated: true, completion: nil)
-        
-    }
     
     
         
@@ -100,11 +127,13 @@ class SecondViewController: UIViewController,UITableViewDelegate,UITableViewData
     
     
     
+    @IBOutlet weak var searchBar4: UISearchBar!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        searchItem = UISearchController(searchResultsController: nil)
+        searchBar4.delegate = self
         let myviewv = UINib(nibName: "Custom2TableViewCell", bundle: nil)
          tableView3.register(myviewv, forCellReuseIdentifier: "567")
         
@@ -124,5 +153,25 @@ class SecondViewController: UIViewController,UITableViewDelegate,UITableViewData
         // Pass the selected object to the new view controller.
     }
     */
-
+var searching = false
 }
+
+
+extension SecondViewController: UISearchBarDelegate
+{
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searching = true
+        filterData = names.filter({$0.lowercased().prefix(searchText.count) == searchText.lowercased()})
+        tableView3.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar)
+    {
+        searching = false
+        searchBar.text = ""
+        tableView3.reloadData()
+    }
+    
+}
+
